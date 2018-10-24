@@ -22,6 +22,9 @@ include \
 	$(shell [ -f $(SERVICE_NAME)/config.mk ] && echo $(SERVICE_NAME)/config.mk) \
 	$(shell [ -f $(SERVICE_NAME)/config-$(env).mk ] && echo $(SERVICE_NAME)/config-$(env).mk)
 
+# Available debug levels: TRACE, DEBUG, INFO, WARN, ERROR
+TF_LOG ?= WARN
+
 # assign default variable values
 REGION ?= europe-west2
 PROJECT ?= my-project-id
@@ -76,12 +79,11 @@ endif
 				-get=true \
 				-upgrade=true \
 				-backend-config="bucket=$(TF_VAR_tfstate_bucket)" \
-				-backend-config="prefix=$(TFSTATE_FILE)" 
+				-backend-config="prefix=$(TFSTATE_FILE)" \
+				$(if $(filter $(TF_STATE_ENCRYPTION_KEY),),$(shell echo -backend-config="encryption_key=$(TF_STATE_ENCRYPTION_KEY)"),) \
+				-backend-config="project=$(PROJECT)"				
 
 %.plan: %.init
-	@# Available debug levels: TRACE, DEBUG, INFO, WARN, ERROR
-	TF_LOG ?= WARN
-
 	@cd $(SERVICE_NAME); $(TF_EXEC) plan \
 		-var-file=<(echo $${ENCRYPTED_TFVARS}) \
 		$(if $(filter $(TF_STATE_ENCRYPTION_KEY),),$(shell echo -var 'remote_state_encryption_key=$(TF_STATE_ENCRYPTION_KEY)'),) \
