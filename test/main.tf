@@ -12,3 +12,8 @@ provider "google" {
 data "google_project" "project" {
   project_id = "${var.project}"
 }
+
+resource "google_storage_bucket" "demo-bucket" {
+  name     = "${var.project}-${var.service}-demo"
+  location = "EU"
+}
