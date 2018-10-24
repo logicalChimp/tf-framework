@@ -94,7 +94,7 @@ endif
 %.apply: clean %.check
 	@cd $(SERVICE_NAME); $(TF_EXEC) apply $(TFPLAN_FILE) && rm -f $(TFPLAN_FILE)
 
-%.destroy: %.variables
+%.destroy: %.init
 	@cd $(SERVICE_NAME); $(TF_EXEC) destroy \
 		-var-file=<(echo $${ENCRYPTED_TFVARS}) \
 		$(if $(filter $(TF_STATE_ENCRYPTION_KEY),),$(shell echo -var 'remote_state_encryption_key=$(TF_STATE_ENCRYPTION_KEY)'),) \
